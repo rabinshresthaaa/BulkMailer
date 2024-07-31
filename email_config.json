@@ -1,0 +1,7 @@
+{
+    "name":"YOUR_NAME_HERE",
+    "smtp_server":"YOUR_EMAIL_ADDRESS",
+    "smtp_port": SMTP_PORT,
+    "username": "YOUR_EMAIL_ADDRESS",
+    "password": "YOUR_PASSWORD_HERE"
+}
