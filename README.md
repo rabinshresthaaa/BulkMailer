@@ -27,4 +27,6 @@ A Python script to send bulk emails to multiple recipients efficiently.
    
    ```
 4. And You are good to go :)
-   `python send_main.py`
+   ```
+   python send_main.py
+   ```
