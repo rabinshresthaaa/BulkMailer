@@ -16,27 +16,18 @@ smtp_port = config['smtp_port']
 username = config['username']
 password = config['password']
 
-## email format configuration
-def configure_emails_and_send(email):
-    from_email = f"{sender_name} <{username}>"
-    to_email = email
-    full_msg = get_message()
-    subject = full_msg[0]
-    message = full_msg[1]
-
-    ## assign message with MIMEMultipart type
-    msg = MIMEMultipart()
-    msg['From'] = from_email
-    msg['To'] = to_email
-    msg['Subject'] = subject
-    msg.attach(MIMEText(message, "plain"))
-    if include_file():
-        attach_file(msg)
-    send_mail(msg)
-
 #ask user if they want to attach file in email
 def include_file():
-    return input("Do you want to attach a file to your email? (Y/N): ").strip().lower() == 'y'
+    if input("Do you want to attach a file to your email? (Y/N): ").strip().lower() == 'y':
+        print("You must have file in the same directory.")
+        filename = input("Enter filename: ")
+        while not os.path.exists(os.path.join(os.getcwd(), filename)):
+            filename = input("File not not exist. Please Enter Again (with extension)\n OR \nPress Q to continue without attacking file: ")
+            if filename.lower() == 'q':
+                return None
+        return filename
+    else:
+        return None
 
 #returns list of receiver emails
 def receiver_emails(files):
@@ -46,21 +37,12 @@ def receiver_emails(files):
 
 #this asks subject and message from user
 def get_message():
-    full_msg = []
     subject = input("Enter subject of your email: ")
     message = input("Enter message: ")
-    full_msg.append(subject)
-    full_msg.append(message)
-    return full_msg
+    return subject, message
 
 # this function attaches file in email
-def attach_file(msg):
-    print("You must have file in the same directory.")
-    filename = input("Enter filename: ")
-    while not os.path.exists(os.path.join(os.getcwd(), filename)):
-        filename = input("File not not exist. Please Enter Again (with extension)\n OR \nPress Q to continue without attacking file: ")
-        if filename.lower() == 'q':
-            return
+def attach_file(msg,filename):
     with open(filename, "rb") as attachment:
             part = MIMEBase('application', 'octet-stream')
             part.set_payload(attachment.read())
@@ -68,10 +50,17 @@ def attach_file(msg):
             part.add_header('Content-Disposition', f'attachment; filename={filename}')
             msg.attach(part)
 
-
-
 ## sends email
-def send_mail(msg):
+def send_mail(to_email,subject, message,filename):
+    from_email = f"{sender_name} <{username}>"
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(message, "plain"))
+    #check if user wants to attach file in pdf
+    if filename:
+        attach_file(msg,filename)
+    msg['To'] = to_email
     try:
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             server.starttls()
@@ -79,15 +68,17 @@ def send_mail(msg):
             server.send_message(msg)
             print("Email send successfully to", msg['To'],"!!")
     except Exception as e:
-        print("Failed to send email to",msg['To'],f"\nError Occured: {e}")
+        print("Failed to send email to",msg['To'],f"\nError Occured: {e}!!")
 
 def main():
     emails = receiver_emails("emails.txt")
     if emails == []:
         print("No Email in List")
         return ""
+    subject, message = get_message()
+    filename = include_file()
     for email in emails:
-        configure_emails_and_send(email)
+        send_mail(email,subject, message,filename)
         time.sleep(3)
     print("Task Completed!")
 
