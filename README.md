@@ -13,7 +13,7 @@ A Python script to send bulk emails to multiple recipients efficiently.
 ## SetUp
 1. Clone the Repository
    ```
-   git clone https://github.com/itsrawbin/BulkMailer.git
+   git clone https://github.com/rabinshresthaaa/BulkMailer.git
    cd BulkMailer
    ```
 2. Setup Configuration File
